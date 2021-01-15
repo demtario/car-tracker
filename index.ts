@@ -1,7 +1,8 @@
 import axios from 'axios'
 import cron from 'node-cron'
-import { promisify } from 'util'
 import fs from 'fs'
+import { promisify } from 'util'
+import { format } from 'date-fns'
 import { ApiResponse } from './interfaces/ApiResponse'
 import { Vehicle, VehicleTypes } from './interfaces/Vehicle'
 import { EVERY_10_SECONDS, EVERY_HOUR } from './consts'
@@ -43,7 +44,7 @@ const saveCars = async () => {
 }
 
 cron.schedule(EVERY_10_SECONDS, () => {
-  console.log(`${new Date()} - Fetching started`)
+  console.log(`[${format(Date.now(), 'dd-MM-yyyy hh:mm:ss')}] Fetching started`)
   saveCars()
-  console.log(`${new Date()} - Fetching ended`)
+  console.log(`[${format(Date.now(), 'dd-MM-yyyy hh:mm:ss')}] Fetching ended`)
 })

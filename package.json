@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
+    "date-fns": "^2.16.1",
     "eventsource": "^1.0.7",
     "http-event-stream": "^0.2.0",
     "node-cron": "^2.0.3"
