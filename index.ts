@@ -51,3 +51,5 @@ cron.schedule(EVERY_15_MINUTES, () => {
   performVehiclesUpdate()
   console.log(`[${format(Date.now(), DATE_FORMAT)}] Stats update ended`)
 })
+
+console.log('Program started')
