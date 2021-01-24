@@ -5,7 +5,7 @@
   "author": "Artur",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node index.ts"
+    "start": "ts-node ./src/index.ts"
   },
   "devDependencies": {
     "@types/eventsource": "^1.1.5",
