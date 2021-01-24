@@ -3,30 +3,33 @@ import cron from 'node-cron'
 import fs from 'fs'
 import { promisify } from 'util'
 import { format } from 'date-fns'
+
 import { ApiResponse } from './interfaces/ApiResponse'
 import { Vehicle, VehicleTypes } from './interfaces/Vehicle'
-import { EVERY_10_SECONDS, EVERY_HOUR } from './consts'
+import { DATE_FORMAT, EVERY_10_SECONDS, EVERY_15_MINUTES } from './consts'
 
 const URL = 'https://takeanddrive.eu/api/v2/vehicles?city=trojmiasto&locale=pl'
 const FILE = 'result.txt'
 
 const appendFile = promisify(fs.appendFile)
 
-const fetchCars = async () => {
+const fetchVehicles = async () => {
   const { data } = await axios.get<ApiResponse[]>(URL)
   const allVehicles = data.map((d) => d.vehicles).flat()
-  const cars = allVehicles.filter((c) => c.type === VehicleTypes.Car)
-  return cars
+  // const cars = allVehicles.filter((c) => c.type === VehicleTypes.Car)
+  return allVehicles
 }
 
-const saveCarsToFile = async (cars: Vehicle[]) => {
-  const stringData = cars
-    .map((car) => ({
-      id: car.id,
-      name: car.name,
-      registrationNumber: car.registrationNumber,
-      latitude: car.coordinates.latitude,
-      longitude: car.coordinates.longitude,
+const saveVehiclesToFile = async (vehicles: Vehicle[]) => {
+  const stringData = vehicles
+    .map((vehicle) => ({
+      date: format(Date.now(), DATE_FORMAT),
+      id: vehicle.id,
+      registrationNumber: vehicle.registrationNumber,
+      type: vehicle.type,
+      name: vehicle.name,
+      latitude: vehicle.coordinates.latitude,
+      longitude: vehicle.coordinates.longitude,
     }))
     .map((car) => Object.values(car).join(','))
     .join('\n')
@@ -38,13 +41,13 @@ const saveCarsToFile = async (cars: Vehicle[]) => {
   }
 }
 
-const saveCars = async () => {
-  const cars = await fetchCars()
-  await saveCarsToFile(cars)
+const performVehiclesUpdate = async () => {
+  const cars = await fetchVehicles()
+  await saveVehiclesToFile(cars)
 }
 
-cron.schedule(EVERY_10_SECONDS, () => {
-  console.log(`[${format(Date.now(), 'dd-MM-yyyy hh:mm:ss')}] Fetching started`)
-  saveCars()
-  console.log(`[${format(Date.now(), 'dd-MM-yyyy hh:mm:ss')}] Fetching ended`)
+cron.schedule(EVERY_15_MINUTES, () => {
+  console.log(`[${format(Date.now(), DATE_FORMAT)}] Stats update started`)
+  performVehiclesUpdate()
+  console.log(`[${format(Date.now(), DATE_FORMAT)}] Stats update ended`)
 })
